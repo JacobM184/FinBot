@@ -1,0 +1,2 @@
+# FinBot
+Algorithmic Trading Bot
