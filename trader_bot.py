@@ -4,6 +4,8 @@ from lumibot.strategies.strategy import Strategy
 from lumibot.traders import Trader
 
 from datetime import datetime
+from alpaca_trade_api import REST
+from datetime import timedelta
 
 import fin_constants
 
@@ -21,6 +23,7 @@ class MLTrader(Strategy):
         self.sleeptime = "24H"
         self.last_trade = None
         self.cash_at_risk = cash_at_risk
+        self.api = REST(base_url=BASE_URL, key_id=ALPACA_CREDS["API_KEY"], secret_key=ALPACA_CREDS["API_SECRET"])
         
     def position_sizing(self):
         cash = self.get_cash()
@@ -28,7 +31,17 @@ class MLTrader(Strategy):
         quantity = round(cash * self.cash_at_risk / last_price, 0)
         
         return cash, last_price, quantity
-        
+    
+    def get_dates(self):
+        today = self.get_datetime()
+        three_days_prior = today - timedelta(days=3)
+        return today.strftime("%Y-%m-%d"), three_days_prior.strftime("%Y-%m-%d")
+    
+    def get_news(self):
+        end, start = self.get_dates()
+        news = self.api.get_news(symbol=self.symbol, start=start, end=end)
+        news = [event.__dict__["_raw"]["headline"] for event in news]
+        return news
         
     
     def on_trading_iteration(self):
@@ -36,6 +49,8 @@ class MLTrader(Strategy):
         
         if cash > last_price:
             if self.last_trade == None:
+                news = self.get_news()
+                print(news)
                 order = self.create_order(
                     self.symbol,
                     quantity,
