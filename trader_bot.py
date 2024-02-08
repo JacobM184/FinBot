@@ -63,7 +63,7 @@ class MLTrader(Strategy):
                     "buy",
                     type="bracket",
                     take_profit_price=last_price*1.20,
-                    stop_loss_limit_price=last_price*0.95
+                    stop_loss_limit_price=last_price*.95
                 )
                 self.submit_order(order)
                 self.last_trade = "buy"
@@ -78,7 +78,7 @@ class MLTrader(Strategy):
                     quantity,
                     "sell",
                     type="bracket",
-                    take_profit_price=last_price*0.80,
+                    take_profit_price=last_price*.80,
                     stop_loss_limit_price=last_price*1.05
                 )
                 self.submit_order(order)
@@ -89,7 +89,7 @@ end_date = datetime(2023,12,31)
 
 broker = Alpaca(ALPACA_CREDS)
 strategy = MLTrader(name="StratOne", broker=broker, parameters={"symbol": "SPY", 
-                                                                "cash_at_risk": 0.5})
+                                                                "cash_at_risk": .5})
 
 strategy.backtest(
     YahooDataBacktesting,
@@ -97,4 +97,3 @@ strategy.backtest(
     end_date,
     parameters={}
 )
-#16:21
